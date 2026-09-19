@@ -41,12 +41,13 @@ export default function App() {
   const [users, setUsers] = useState<UserProfile[]>(INITIAL_USERS);
   const [currentUser, setCurrentUser] = useState<UserProfile>(INITIAL_USERS[0]); // Default to Owner
 
-  // Core Data States (with local persistence fallback)
+  // Core Data States (with robust local persistence fallback)
   const [medicines, setMedicines] = useState<MedicineItem[]>(() => {
     const saved = localStorage.getItem('pharmapos_medicines');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch {
         return INITIAL_MEDICINES;
       }
@@ -58,7 +59,8 @@ export default function App() {
     const saved = localStorage.getItem('pharmapos_sales');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch {
         return INITIAL_SALES;
       }
@@ -70,7 +72,8 @@ export default function App() {
     const saved = localStorage.getItem('pharmapos_purchases');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch {
         return INITIAL_PURCHASES;
       }
@@ -82,7 +85,8 @@ export default function App() {
     const saved = localStorage.getItem('pharmapos_accounts');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch {
         return INITIAL_ACCOUNTS;
       }
@@ -301,6 +305,17 @@ export default function App() {
   const customersList = accounts.filter((a) => a.type === 'customer');
   const suppliersList = accounts.filter((a) => a.type === 'supplier');
 
+  const handleResetToSampleData = () => {
+    localStorage.removeItem('pharmapos_medicines');
+    localStorage.removeItem('pharmapos_sales');
+    localStorage.removeItem('pharmapos_purchases');
+    localStorage.removeItem('pharmapos_accounts');
+    setMedicines(INITIAL_MEDICINES);
+    setSales(INITIAL_SALES);
+    setPurchases(INITIAL_PURCHASES);
+    setAccounts(INITIAL_ACCOUNTS);
+  };
+
   const content = (
     <div className="flex flex-col h-screen w-full bg-slate-950 font-sans select-none overflow-hidden">
       {/* 1. Desktop Window Title Bar */}
@@ -310,6 +325,7 @@ export default function App() {
         onOpenCalculator={() => setIsCalculatorOpen(true)}
         onOpenRemoteModal={() => setIsRemoteModalOpen(true)}
         onOpenShortcutsModal={() => setIsShortcutsOpen(true)}
+        onResetToSampleData={handleResetToSampleData}
       />
 
       {/* 2. Desktop Command Ribbon / Module Switcher */}

@@ -12,7 +12,8 @@ import {
   Maximize2,
   Clock,
   Shield,
-  HelpCircle
+  HelpCircle,
+  RotateCcw
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { sound } from '../utils/audio';
@@ -23,6 +24,7 @@ interface DesktopTitleBarProps {
   onOpenCalculator: () => void;
   onOpenRemoteModal: () => void;
   onOpenShortcutsModal: () => void;
+  onResetToSampleData?: () => void;
 }
 
 export const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
@@ -31,6 +33,7 @@ export const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
   onOpenCalculator,
   onOpenRemoteModal,
   onOpenShortcutsModal,
+  onResetToSampleData,
 }) => {
   const [time, setTime] = useState<string>('');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(sound.isEnabled());
@@ -137,6 +140,19 @@ export const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
           <span className="text-[11px] hidden sm:inline">Calc</span>
           <kbd className="text-[9px] bg-slate-900 text-slate-400 px-1 rounded">F10</kbd>
         </button>
+
+        {/* Reset / Reload Demo Data */}
+        {onResetToSampleData && (
+          <button
+            id="reload-sample-data-btn"
+            onClick={onResetToSampleData}
+            title="Reset / Reload all sample pharmacy medicines, sales and accounts"
+            className="flex items-center gap-1 px-2 py-0.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 hover:text-white rounded border border-emerald-700/60 transition cursor-pointer text-[11px]"
+          >
+            <RotateCcw className="w-3 h-3 text-emerald-400" />
+            <span className="hidden md:inline font-medium">Reset Data</span>
+          </button>
+        )}
 
         {/* Keyboard shortcuts */}
         <button

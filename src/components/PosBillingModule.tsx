@@ -483,16 +483,96 @@ export const PosBillingModule: React.FC<PosBillingModuleProps> = ({
           </div>
 
           {/* Cart Table */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto flex flex-col">
             {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center select-none">
-                <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-slate-400 border border-slate-200">
-                  <Scan className="w-7 h-7" />
+              <div className="flex-1 flex flex-col p-3 overflow-auto bg-slate-50/50">
+                <div className="bg-emerald-950/20 border border-emerald-500/30 rounded p-2.5 mb-2 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <Scan className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <span className="font-semibold text-slate-800">Direct Inventory Quick-Billing Table:</span>
+                      <span className="text-slate-600 ml-1">Click any medicine below or scan its barcode to instantly add to bill</span>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
+                    {medicines.length} Medicines Loaded
+                  </span>
                 </div>
-                <div className="text-sm font-semibold text-slate-700">Scan Barcode or Pick Medicine to Start Bill</div>
-                <p className="text-xs text-slate-500 max-w-sm mt-1">
-                  Connect any laser/USB barcode reader or click the demo buttons above. Item rate, batch number, and expiry date will be registered automatically.
-                </p>
+
+                <div className="flex-1 bg-white border border-slate-200 rounded overflow-hidden flex flex-col">
+                  <div className="bg-slate-100 text-slate-700 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200 flex justify-between">
+                    <span>Quick Select Item (Click to Add to Bill)</span>
+                    <span className="text-slate-500 font-normal">Auto-picks first active batch</span>
+                  </div>
+                  <div className="overflow-auto max-h-[340px]">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 text-[10px] uppercase font-semibold">
+                          <th className="p-2">Item Name / Generic</th>
+                          <th className="p-2">Barcode</th>
+                          <th className="p-2">Company</th>
+                          <th className="p-2">Batch No</th>
+                          <th className="p-2">Expiry</th>
+                          <th className="p-2 text-right">Sale Price</th>
+                          <th className="p-2 text-center">Stock</th>
+                          <th className="p-2 text-center w-24">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {medicines.map((m) => {
+                          const eff = getEffectiveBatch(m);
+                          const totalStk = m.batches.reduce((s, b) => s + b.stockQty, 0);
+                          return (
+                            <tr key={m.id} className="hover:bg-emerald-50/70 transition">
+                              <td className="p-2">
+                                <div className="font-semibold text-slate-900">{m.name}</div>
+                                <div className="text-[10px] text-slate-500">{m.genericName}</div>
+                              </td>
+                              <td className="p-2 font-mono text-[11px] text-slate-600">{m.barcode}</td>
+                              <td className="p-2 text-[11px] text-slate-600">{m.company}</td>
+                              <td className="p-2">
+                                <span className="font-mono bg-slate-100 text-slate-700 px-1 py-0.5 rounded text-[10px]">
+                                  {eff?.batchNo || 'N/A'}
+                                </span>
+                              </td>
+                              <td className="p-2 font-mono text-[11px] text-slate-600">
+                                {eff ? formatDate(eff.expiryDate) : '-'}
+                              </td>
+                              <td className="p-2 text-right font-mono font-bold text-emerald-700">
+                                {eff ? formatCurrency(eff.salePrice) : '-'}
+                              </td>
+                              <td className="p-2 text-center">
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded font-mono ${
+                                  totalStk <= (eff?.minStockAlert || 10)
+                                    ? 'bg-rose-100 text-rose-700'
+                                    : 'bg-slate-100 text-slate-700'
+                                }`}>
+                                  {totalStk} {m.unit}
+                                </span>
+                              </td>
+                              <td className="p-2 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (m.batches.length === 1) {
+                                      addItemToCart(m, m.batches[0]);
+                                    } else {
+                                      setBatchPickerItem(m);
+                                    }
+                                  }}
+                                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-[10px] font-semibold flex items-center justify-center gap-1 mx-auto cursor-pointer shadow-xs transition"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>+ Add Bill</span>
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             ) : (
               <table className="w-full text-left text-xs border-collapse">
