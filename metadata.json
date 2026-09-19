@@ -1,0 +1,6 @@
+{
+  "name": "Pharmacy POS & Inventory Software",
+  "description": "Desktop-style Pharmacy and Retail ERP Software featuring barcode scanning, POS billing, stock inventory with batch/expiry, supplier and customer accounts, and profit/loss reports.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
